@@ -1,43 +1,21 @@
-import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-import {
-  coinbaseWallet,
-  ledgerWallet,
-  metaMaskWallet,
-  rainbowWallet,
-  safeWallet,
-  walletConnectWallet,
-} from "@rainbow-me/rainbowkit/wallets";
-import { rainbowkitBurnerWallet } from "burner-connector";
-import * as chains from "viem/chains";
+import type { CreateConnectorFn } from "wagmi";
+import { walletConnect } from "wagmi/connectors";
+import { injected, metaMask } from "wagmi/connectors";
 import scaffoldConfig from "~~/scaffold.config";
-
-const { onlyLocalBurnerWallet, targetNetworks } = scaffoldConfig;
-
-const wallets = [
-  metaMaskWallet,
-  walletConnectWallet,
-  ledgerWallet,
-  coinbaseWallet,
-  rainbowWallet,
-  safeWallet,
-  ...(!targetNetworks.some(network => network.id !== (chains.hardhat as chains.Chain).id) || !onlyLocalBurnerWallet
-    ? [rainbowkitBurnerWallet]
-    : []),
-];
 
 /**
  * wagmi connectors for the wagmi context
  */
-export const wagmiConnectors = connectorsForWallets(
-  [
-    {
-      groupName: "Supported Wallets",
-      wallets,
-    },
-  ],
-
-  {
-    appName: "scaffold-eth-2",
+export const wagmiConnectors: readonly CreateConnectorFn[] = [
+  injected(),
+  metaMask(),
+  walletConnect({
     projectId: scaffoldConfig.walletConnectProjectId,
-  },
-);
+    metadata: {
+      name: "Simple NFT Example",
+      description: "Built with Scaffold-ETH 2",
+      url: "https://speedrunethereum.com",
+      icons: ["https://avatars.githubusercontent.com/u/55535804?s=200&v=4"],
+    },
+  }),
+];
